@@ -6,24 +6,24 @@ const db = new QuickDB();
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("warn")
-    .setDescription("Warn a user.")
+    .setDescription("Slap on the wrist.")
     .addUserOption((option) =>
       option
         .setName("user")
-        .setDescription("The user that you wanna warn")
+        .setDescription("The person to be shouted at.")
         .setRequired(true)
     )
     .addStringOption((option) =>
       option
         .setName("reason")
-        .setDescription("The reason that you wanna warn this user")
+        .setDescription("Why do you want to be rude?")
         .setRequired(false)
     ),
  
   async execute(interaction, client) {
     const embed1 = new EmbedBuilder()
       .setColor("Red")
-      .setDescription("You dont have permission to warn people on this server.")
+      .setDescription("Red will shout at you.")
       .setTitle("Error Detected!")
       .setThumbnail(
         "https://cdn.discordapp.com/attachments/1039497705753428018/1046445745731031040/pngegg.png"
