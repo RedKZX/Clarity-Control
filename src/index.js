@@ -51,3 +51,5 @@ setInterval(() => {
 })
 
 //Red was here :D//
+
+//No stealey//
