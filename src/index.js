@@ -97,7 +97,56 @@ client.on(Events.GuildMemberAdd, async member => {
         : channel.send(`${member.user.tag} joined the server but I can't find what invite they used to do it`);
 })
 
-//Ticket System (modal)
+//Welcome
+
+client.on(Events.GuildMemberAdd, async (member) => {
+ 
+    const channelID = await db.get(`welchannel_${member.guild.id}`)
+    const channelwelcome = member.guild.channels.cache.get(channelID)
+ 
+    const embedwelcome = new EmbedBuilder()
+     .setColor("Red")
+     .setTitle('A new Member has arrived\nto the Server!')
+     .setDescription( `> Welcome ${member} to the Sevrer!`)
+     .setFooter({ text: `Have a read of the channels in the Registration category and enjoy!`})
+     .setTimestamp()
+     .setAuthor({ name: `Red`})
+ 
+    if (channelID == null) return;
+ 
+    const embedwelcomedm = new EmbedBuilder()
+     .setColor("Red")
+     .setTitle('Welcome Message')
+     .setDescription( `> Welcome to ${member.guild.name}!`)
+     .setFooter({ text: `Have a read of the channels in the Registration category and enjoy!`})
+     .setTimestamp()
+     .setAuthor({ name: `Red`})
+ 
+    if (channelID == null) return;
+ 
+    channelwelcome.send({ embeds: [embedwelcome]})
+    member.send({ embeds: [embedwelcomedm]})
+})
+
+//Leave
+
+client.on(Events.GuildMemberRemove, async (member) => {
+ 
+    const channelID = await db.get(`welchannel_${member.guild.id}`)
+    const channelwelcome = member.guild.channels.cache.get(channelID)
+ 
+    const embedleave = new EmbedBuilder()
+     .setColor("Red")
+     .setTitle('A Member has left')
+     .setDescription( `> ${member} has left the Server to find their dad.`)
+     .setFooter({ text: `So long`})
+     .setTimestamp()
+     .setAuthor({ name: `Red`})
+ 
+    if (channelID == null) return;
+ 
+    channelwelcome.send({ embeds: [embedleave]})
+})
  
  //Feedback (Modal)
 
