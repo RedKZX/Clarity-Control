@@ -26,7 +26,7 @@ module.exports = {
 
         const embed = new EmbedBuilder()
         .setColor('Red')
-        .setDescription(`Yur sticker \`${name}\` has been added to the server!`)
+        .setDescription(`Your sticker \`${name}\` has been added to the server!`)
 
         setTimeout(() => {
             if (!sticker) return;
