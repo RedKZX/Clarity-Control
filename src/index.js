@@ -97,33 +97,7 @@ client.on(Events.GuildMemberAdd, async member => {
         : channel.send(`${member.user.tag} joined the server but I can't find what invite they used to do it`);
 })
 
-//Ticket System (modal)
- 
- //Feedback (Modal)
 
- client.on(Events.InteractionCreate, async interaction => {
-
-    if (!interaction.isModalSubmit()) return;
-
-    if (interaction.customId === 'feedback') {
-        
-        const feedbackname = interaction.fields.getTextInputValue('name');
-        const feedbackfeedback = interaction.fields.getTextInputValue('feedback');
-        const feedbackproblems = interaction.fields.getTextInputValue('problems') || 'User did not provide any problem information.';
-    
-        axios.post('https://sheetdb.io/api/v1/wfbw6iyvafo7n', {
-                data: {
-                    username: `${feedbackname}`,
-                    feedback: `${feedbackfeedback}`,
-                    problems: `${feedbackproblems}`
-                }
-            })
-        
-        await interaction.reply({ content: 'Your **feedback** was submited! Thanks for sharing that with us :D', ephemeral: true}) 
- }
-}
- 
- )
 
  //Ghost ping [AGP]
 
@@ -180,3 +154,5 @@ client.on(Events.GuildMemberAdd, async member => {
     }
  })
 //Red was here :D//
+
+//No stealey//
