@@ -39,7 +39,7 @@ module.exports = {
             await Data.save();
 
             const embed = new EmbedBuilder()
-            .setColour('Red')
+            .setColor('Red')
             .setTitle('Successfully Deposited')
             .setDescription(`Successfully $${parseInt(Converted)} deposited into your bank`)
 
