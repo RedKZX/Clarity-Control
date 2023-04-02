@@ -49,6 +49,78 @@ setInterval(() => {
 
 })
 
+ //Feedback (Modal)
+
+ client.on(Events.InteractionCreate, async interaction => {
+
+    if (!interaction.isModalSubmit()) return;
+
+    if (interaction.customId === 'feedback') {
+        
+        const feedbackname = interaction.fields.getTextInputValue('name');
+        const feedbackfeedback = interaction.fields.getTextInputValue('feedback');
+        const feedbackproblems = interaction.fields.getTextInputValue('problems') || 'User did not provide any problem information.';
+    
+        axios.post('https://sheetdb.io/api/v1/wfbw6iyvafo7n', {
+                data: {
+                    username: `${feedbackname}`,
+                    feedback: `${feedbackfeedback}`,
+                    problems: `${feedbackproblems}`
+                }
+            })
+        
+        await interaction.reply({ content: 'Your **feedback** was submited! Thanks for sharing that with us :D', ephemeral: true}) 
+ }
+}
+ 
+ )
+
+// AFK System Code //
+ 
+const afkSchema = require('./Schemas.js/afkSchema');
+ 
+client.on(Events.MessageCreate, async (message) => {
+ 
+    if (message.author.bot) return;
+ 
+    const afkcheck = await afkSchema.findOne({ Guild: message.guild.id, User: message.author.id});
+    if (afkcheck) {
+        const nick = afkcheck.Nickname;
+ 
+        await afkSchema.deleteMany({
+            Guild: message.guild.id,
+            User: message.author.id
+        })
+ 
+        await message.member.setNickname(`${nick}`).catch(Err => {
+            return;
+        })
+ 
+        const m1 = await message.reply({ content: `Hey, you are **back**! Unfortunately`, ephemeral: true})
+        setTimeout(() => {
+            m1.delete();
+        }, 4000)
+    } else {
+ 
+        const members = message.mentions.users.first();
+        if (!members) return;
+        const afkData = await afkSchema.findOne({ Guild: message.guild.id, User: members.id })
+ 
+        if (!afkData) return;
+ 
+        const member = message.guild.members.cache.get(members.id);
+        const msg = afkData.Message;
+ 
+        if (message.content.includes(members)) {
+            const m = await message.reply({ content: `${member.user.tag} is currently AFK, let's keep it down.. \n> **Reason**: ${msg}`, ephemeral: true});
+            setTimeout(() => {
+                m.delete();
+                message.delete();
+            }, 4000)
+        }
+    }
+})
+
 //Invite Logger
 
 const inviteSchema = require('./Schemas.js/inviteSchema');
