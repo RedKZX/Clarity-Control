@@ -33,7 +33,7 @@ module.exports = {
       await interaction.reply({ embeds: [embed1], ephemeral: true });
     } else {
       const embed = new EmbedBuilder()
-        .setColor("DarkPurple")
+        .setColor("Red")
         .setDescription(`I remember this about ${user}: \n${remuser}`)
         .setTitle("Here's what i remember:")
         .setTimestamp();
