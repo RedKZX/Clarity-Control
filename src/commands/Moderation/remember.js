@@ -46,7 +46,7 @@ module.exports = {
     await db.set(`Remember_${user}_${interaction.guild.id}`, description);
  
     const embed = new EmbedBuilder()
-      .setColor("Yellow")
+      .setColor("Red")
       .setDescription(`Remembered "${description}" for ${user}.`)
       .setTitle("Remembered!")
       .setThumbnail(
