@@ -121,6 +121,287 @@ client.on(Events.MessageCreate, async (message) => {
     }
 })
 
+////logging
+
+const logSchema = require('./Schemas.js/log')
+ 
+client.on(Events.ChannelCreate, async channel => {
+ 
+    channel.guild.fetchAuditLogs({
+        type: AuditLogEvent.ChannelCreate,
+    })
+    .then(async audit => {
+        const { executor } = audit.entries.first()
+ 
+        const name = channel.name;
+        const id = channel.id;
+        let type = channel.type;
+ 
+        if (type == 0) type = 'Text'
+        if (type == 2) type = 'Voice'
+        if (type == 13) type = 'Stage'
+        if (type == 15) type = 'Form'
+        if (type == 5) type = 'Announcement'
+        if (type == 5) type = 'Category'
+ 
+        logSchema.findOne({ Guild: channel.guild.id}, async (err, data) => {
+            if (err) throw err;
+            if (!data) return;
+ 
+            if (data) {
+                let channelID = data.Channel;
+                const mChannel = await channel.guild.channels.cache.get(channelID);
+ 
+                const embed = new EmbedBuilder()
+                .setColor("Red")
+                .setTitle("Channel Created")
+                .addFields({ name: "Channel Name", value: `${name} (<#${id}>)`, inline: false})
+                .addFields({ name: "Channel Type", value: `${type}`, inline: false})
+                .addFields({ name: "Channel ID", value: `${id}`, inline: false})
+                .addFields({ name: "Created By", value: `${executor.tag}`, inline: false})
+                .setTimestamp()
+                .setFooter({ text: "Mod Logging System"})
+ 
+                mChannel.send({ embeds: [embed] })
+            }
+ 
+        })
+ 
+    })
+})
+ 
+client.on(Events.ChannelDelete, async channel => {
+ 
+    channel.guild.fetchAuditLogs({
+        type: AuditLogEvent.ChannelDelete,
+    })
+    .then(async audit => {
+        const { executor } = audit.entries.first()
+ 
+        const name = channel.name;
+        const id = channel.id;
+        let type = channel.type;
+ 
+        if (type == 0) type = 'Text'
+        if (type == 2) type = 'Voice'
+        if (type == 13) type = 'Stage'
+        if (type == 15) type = 'Form'
+        if (type == 5) type = 'Announcement'
+        if (type == 5) type = 'Category'
+ 
+        logSchema.findOne({ Guild: channel.guild.id}, async (err, data) => {
+            if (err) throw err;
+            if (!data) return;
+ 
+            if (data) {
+                let channelID = data.Channel;
+                const mChannel = await channel.guild.channels.cache.get(channelID);
+ 
+                const embed = new EmbedBuilder()
+                .setColor("Red")
+                .setTitle("Channel Deleted")
+                .addFields({ name: "Channel Name", value: `${name}`, inline: false})
+                .addFields({ name: "Channel Type", value: `${type}`, inline: false})
+                .addFields({ name: "Channel ID", value: `${id}`, inline: false})
+                .addFields({ name: "Deleted By", value: `${executor.tag}`, inline: false})
+                .setTimestamp()
+                .setFooter({ text: "Mod Logging System"})
+ 
+                mChannel.send({ embeds: [embed] })
+            }
+ 
+        })
+ 
+    })
+})
+ 
+client.on(Events.GuildBanAdd, async member => {
+ 
+    member.guild.fetchAuditLogs({
+        type: AuditLogEvent.GuildBanAdd,
+    })
+    .then(async audit => {
+        const { executor } = audit.entries.first()
+ 
+        const name = member.user.username;
+        const id = member.user.id;
+ 
+        logSchema.findOne({ Guild: member.guild.id}, async (err, data) => {
+            if (err) throw err;
+            if (!data) return;
+ 
+            if (data) {
+                let channelID = data.Channel;
+                const mChannel = await member.guild.channels.cache.get(channelID);
+ 
+                const embed = new EmbedBuilder()
+                .setColor("Red")
+                .setTitle("Member Banned")
+                .addFields({ name: "Member Name", value: `${name} (<@${id}>)`, inline: false})
+                .addFields({ name: "Member ID", value: `${id}`, inline: false})
+                .addFields({ name: "Banned By", value: `${executor.tag}`, inline: false})
+                .setTimestamp()
+                .setFooter({ text: "Mod Logging System"})
+ 
+                mChannel.send({ embeds: [embed] })
+            }
+        })
+ 
+ 
+    })
+})
+ 
+client.on(Events.GuildBanRemove, async member => {
+ 
+    member.guild.fetchAuditLogs({
+        type: AuditLogEvent.GuildBanRemove,
+    })
+    .then(async audit => {
+        const { executor } = audit.entries.first()
+ 
+        const name = member.user.username;
+        const id = member.user.id;
+ 
+        logSchema.findOne({ Guild: member.guild.id}, async (err, data) => {
+            if (err) throw err;
+            if (!data) return;
+ 
+            if (data) { 
+                let channelID = data.Channel;
+                const mChannel = await member.guild.channels.cache.get(channelID);
+ 
+                const embed = new EmbedBuilder()
+                .setColor("Red")
+                .setTitle("Member Unbanned")
+                .addFields({ name: "Member Name", value: `${name} (<@${id}>)`, inline: false})
+                .addFields({ name: "Member ID", value: `${id}`, inline: false})
+                .addFields({ name: "Unbanned By", value: `${executor.tag}`, inline: false})
+                .setTimestamp()
+                .setFooter({ text: "Mod Logging System"})
+ 
+                mChannel.send({ embeds: [embed] })
+ 
+            }
+        })
+    })
+})
+ 
+client.on(Events.MessageDelete, async message => {
+ 
+        const executor = message.author.tag;
+ 
+        const mes = message.content;
+ 
+        if (!mes) return;
+ 
+        logSchema.findOne({ Guild: message.guild.id}, async (err, data) => {
+            if (err) throw err;
+            if (!data) return;
+ 
+            if (data) {
+                let channelID = data.Channel;
+                const mChannel = await message.guild.channels.cache.get(channelID);
+ 
+                const embed = new EmbedBuilder()
+                .setColor("Red")
+                .setTitle("Message Deleted")
+                .addFields({ name: "Message Content", value: `${mes}`, inline: false})
+                .addFields({ name: "Message Channel", value: `${message.channel}`, inline: false})
+                .addFields({ name: "Message Author", value: `${message.author.tag}`, inline: false})
+                .setTimestamp()
+                .setFooter({ text: "Mod Logging System"})
+ 
+                mChannel.send({ embeds: [embed] })
+ 
+            }
+    })
+})
+ 
+client.on(Events.MessageUpdate, async (message, newMessage) => {
+ 
+        const executor = message.author.tag;
+ 
+        const mes = message.content;
+ 
+        if (!mes) return;
+ 
+        logSchema.findOne({ Guild: message.guild.id}, async (err, data) => {
+            if (err) throw err;
+            if (!data) return;
+ 
+            if (data) {
+                let channelID = data.Channel;
+                const mChannel = await message.guild.channels.cache.get(channelID);
+ 
+            const embed = new EmbedBuilder()
+            .setColor("Red")
+            .setTitle("Message Edited")
+            .addFields({ name: "Old Message", value: `${mes}`, inline: false})
+            .addFields({ name: "New Message", value: `${newMessage}`, inline: false})
+            .addFields({ name: "Message Author", value: `${executor}`, inline: false})
+            .setTimestamp()
+            .setFooter({ text: "Mod Logging System"})
+ 
+            mChannel.send({ embeds: [embed] })
+ 
+            }
+ 
+    })
+}) 
+ 
+client.on(Events.VoiceStateUpdate, async member => {
+ 
+    member.guild.fetchAuditLogs({
+        type: AuditLogEvent.VoiceStateUpdate,
+    })
+    .then(async audit => {
+ 
+        const memberID = member.id;
+        const channelID = member.channelId;
+ 
+        const mem = member.guild.members.cache.get(`${memberID}`);
+        const memberTag = mem.user.tag;
+ 
+        logSchema.findOne({ Guild: member.guild.id}, async (err, data) => {
+            if (err) throw err;
+            if (!data) return;
+ 
+            if (data) {
+            if (channelID == null) {
+                let channelID = data.Channel;
+                const mChannel = await member.guild.channels.cache.get(channelID);
+ 
+                const embed = new EmbedBuilder()
+                .setColor("Red")
+                .setTitle("Member Joined VC")
+                .addFields({ name: "Member", value: `${mem}`, inline: false})
+                .addFields({ name: "Member Tag & ID", value: `${memberTag}, ${memberID}`, inline: false})
+                .setTimestamp()
+                .setFooter({ text: "Mod Logging System"})
+ 
+                mChannel.send({ embeds: [embed] })
+ 
+            } else {
+                let channelID = data.Channel;
+                const mChannel = await member.guild.channels.cache.get(channelID);
+ 
+                const embed = new EmbedBuilder()
+                .setColor("Red")
+                .setTitle("Member Left VC")
+                .addFields({ name: "Member", value: `${mem}`, inline: false})
+                .addFields({ name: "Member Tag & ID", value: `${memberTag}, ${memberID}`, inline: false})
+                .setTimestamp()
+                .setFooter({ text: "Mod Logging System"})
+ 
+                mChannel.send({ embeds: [embed] })
+            }
+ 
+        }
+        })
+ 
+    })
+})
+
 //Invite Logger
 
 const inviteSchema = require('./Schemas.js/inviteSchema');
