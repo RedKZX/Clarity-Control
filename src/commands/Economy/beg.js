@@ -19,7 +19,7 @@ module.exports = {
         const amount = Math.round((Math.random() * posN.length));
         const value = posN[amount];
  
-        if (!value) return await interaction.reply({ content: `No money for you!`, ephemeral: true });
+        if (!value) return await interaction.reply({ content: `No money for you!`, ephemeral: false });
  
         if (Data) {
             Data.Wallet += value;
