@@ -1,18 +1,43 @@
-const { SlashCommandBuilder, CommandInteraction, PermissionFlagsBits, EmbedBuilder } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 
-module.exports = {
-    ownerOnly: true, // Owner only setting remember this henry
+module.exports = { 
     data: new SlashCommandBuilder()
-        .setName('reds-ping')
-        .setDescription('For red')
-        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-        .setDMPermission(false),
+    .setName('special-ping')
+    .setDescription('Pong! View the speed of the bot\'s response.')
+    .setDMPermission(false),
     async execute(interaction, client) {
-        const embed = new EmbedBuilder()
-            .setDescription(`:ping_pong: | Pong! Latency: **${client.ws.ping} ms**`)
-            .setColor("0x2f3136")
-            .setTimestamp();
+        const icon = interaction.user.displayAvatarURL();
+        const tag = interaction.user.tag;
 
-        await interaction.reply({ embeds: [embed] })
+        const embed = new EmbedBuilder()
+        .setTitle('**`🏓・PONG!`**')
+        .setDescription(`**\`LATENCY: ${client.ws.ping} ms\`**`)
+        .setColor("Red")
+        .setFooter({ text: `Requested by ${tag}`, iconURL: icon })
+        .setTimestamp()
+
+        const btn = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+            .setCustomId('btn')
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji('🔁')
+        )
+
+        const msg = await interaction.reply({ embeds: [embed], components: [btn] })
+
+        const collector = msg.createMessageComponentCollector()
+        collector.on('collect', async i => {
+            if(i.customId == 'btn') {
+                i.update({ embeds: [
+                    new EmbedBuilder()
+                    .setTitle('**`🏓・PONG!`**')
+                    .setDescription(`**\`LATENCY: ${client.ws.ping} ms\`**`)
+                    .setColor("Red")
+                    .setFooter({ text: `Requested by ${tag}`, iconURL: icon })
+                    .setTimestamp()
+                ], components: [btn] })
+            }
+        })
     }
 }
