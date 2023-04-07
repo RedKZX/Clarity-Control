@@ -2,7 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { Configuration, OpenAIApi } = require('openai');
  
 const configuration = new Configuration({
-    apiKey: "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" 
+    apiKey: "" 
 });
  
 const openai = new OpenAIApi(configuration);
