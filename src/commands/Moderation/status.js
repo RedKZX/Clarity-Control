@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const coolkids = require('../../coolkids.json')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -12,6 +11,12 @@ module.exports = {
         const { options } = interaction;
         const status = options.getString('status');
         const type = options.getString('type');
+        const coolkids = [
+            "756849096479866996",
+    "776602239384158228",
+    "314540324561092609",
+    "349499224905482240"
+        ]
 
         if (!coolkids.includes(interaction.user.id)) return await interaction.reply({ content: `This command is only for cool kids`, ephemeral: false});
         else {
