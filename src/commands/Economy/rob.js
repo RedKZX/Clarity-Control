@@ -7,17 +7,17 @@ module.exports = {
     data: new SlashCommandBuilder()
     .setName('rob')
     .setDescription('Rob someones moneys!')
-    .addUserOption(option => option.setName('victim').setDescription('the user who you want to rob')),
+    .addUserOption(option => option.setName('victim').setDescription('the user who you want to rob').setRequired(true)),
     async execute (interaction) {
 
         const { options, user, guild } = interaction;
 
-        if (timeout.includes(interaction.user.id)) return await interaction.repyl({ content: 'Wait 1 minute to rob another poor person!'});
+        if (timeout.includes(interaction.user.id)) return await interaction.reply({ content: 'Wait 1 minute to rob another poor person!'});
 
-        const userStealing = options.getUser('user');
+        const userStealing = options.getUser('victim');
         
         let Data = await ecoSchema.findOne({ Guild: guild.id, User: user.id});
-        let DataUser = await ecoSchema.finOne({ Guild: guild.ud, User: userStealing.id});
+        let DataUser = await ecoSchema.findOne({ Guild: guild.id, User: userStealing.id});
 
         if (!Data) return await interaction.reply({ content: 'Please create an economy account first by doing `/economy!`'});
         if (userStealing == interaction.user) return await interaction.reply({ content: 'Why would you even try and rob yourself?'});
@@ -29,7 +29,7 @@ module.exports = {
 
         const posN = [negative, positive];
 
-        const amount = Mathr.round(Math.random() * posN.length);
+        const amount = Math.round(Math.random() * posN.length);
         const value = posN[amount];
 
         if (Data.Wallet <= 0) return await interaction.reply({ content:'You cannot rob this person because your wallet has $0 in it'});
@@ -43,12 +43,12 @@ module.exports = {
                 "You took",
             ]
 
-            const posName = Math.floor(Math.random() * positiveChoices.lenght);
+            const posName = Math.floor(Math.random() * positiveChoices.length);
 
             const begEmbed = new EmbedBuilder()
             .setColor('Red')
             .setTitle('Robbery Success')
-            .addFields({ name: 'You robbed and', value: `${positiveChoices[[posName]]} $${value}`})
+            .addFields({ name: 'Robbery Results:', value: `${positiveChoices[[posName]]} $${value}`})
 
             await interaction.reply({ embeds: [begEmbed] });
 
@@ -69,10 +69,10 @@ module.exports = {
             const wal = Data.Wallet;
             if (isNaN(value)) return await interaction.reply({ content: 'This user was not robbed but you were not caught'});
 
-            const negName = Math.floor(Math.random() * negativeChoices.lenght);
+            const negName = Math.floor(Math.random() * negativeChoices.length);
 
             let nonSymbol;
-            if (value = wal < 0) {
+            if (value - wal < 0) {
 
                 const stringV = `${value}`;
 
@@ -81,7 +81,7 @@ module.exports = {
                 const los = new EmbedBuilder()
                 .setColor('Red')
                 .setTitle('Robbery Failure')
-                .addFields({ name: 'You robebd and', value: `${negativeChoices[[negName]]} $${nonSymbol}`})
+                .addFields({ name: 'Robbery Results', value: `${negativeChoices[[negName]]} $${nonSymbol}`})
 
                 Data.Bank += value;
                 await Data.save();
@@ -92,12 +92,12 @@ module.exports = {
                 return await interaction.reply({ embeds: [los] });
             }
 
-            const begEmbed = new EmbedBuilder()
+            const begLostEmbed = new EmbedBuilder()
             .setColor('Red')
             .setTitle('Robbery Failure')
             .addFields({ name: 'You robbed and', value: `${positiveChoices[[posName]]} $${value}`})
 
-            await interaction.reply({ embeds: [begLostembed] });
+            await interaction.reply({ embeds: [begLostEmbed] });
 
             Data.Wallet += value;
             await Data.save();

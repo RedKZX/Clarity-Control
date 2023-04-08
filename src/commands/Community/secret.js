@@ -20,4 +20,3 @@ module.exports = {
         await interaction.reply({ embeds: [penisEmbed] });
     },
 };
-//Have fun with this one

@@ -30,4 +30,3 @@ module.exports = {
     interaction.reply({ embeds: [embed], components: [row]})
   }
 }
-//No clue why someone would use this

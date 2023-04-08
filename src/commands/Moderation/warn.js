@@ -1,4 +1,4 @@
-onst { SlashCommandBuilder } = require("@discordjs/builders");
+const { SlashCommandBuilder } = require("@discordjs/builders");
 const { EmbedBuilder, PermissionsBitField } = require("discord.js");
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
@@ -25,9 +25,6 @@ module.exports = {
       .setColor("Red")
       .setDescription("Red will shout at you.")
       .setTitle("Error Detected!")
-      .setThumbnail(
-        "https://cdn.discordapp.com/attachments/1039497705753428018/1046445745731031040/pngegg.png"
-      )
       .setTimestamp();
  
     if (
@@ -50,9 +47,6 @@ module.exports = {
       .setColor("Yellow")
       .setDescription(`${author} has **Warned** ${target} || ${reason}`)
       .setTitle("Warned!")
-      .setThumbnail(
-        "https://cdn.discordapp.com/attachments/1039497705753428018/1045730663543885935/verified-blue-check-mark-symbol-logo-trademark-text-transparent-png-821650.png"
-      )
       .setTimestamp();
  
     interaction.reply({ embeds: [embed] });

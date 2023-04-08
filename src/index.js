@@ -490,6 +490,10 @@ client.on(Events.GuildMemberAdd, async member => {
 
         if (number == 2) time = 60;
         if (number >= 3) time = 500;
+        
+        if (message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return;
+        }
 
         const msg = await message.channel.send({ content: `${message.author}, Dont try to ghost ping please.`});
         setTimeout(() => msg.delete(), 5000);

@@ -27,9 +27,6 @@ module.exports = {
         "You dont have permission to make me remember thing about someone on this server."
       )
       .setTitle("Error Detected!")
-      .setThumbnail(
-        "https://cdn.discordapp.com/attachments/1039497705753428018/1046445745731031040/pngegg.png"
-      )
       .setTimestamp();
  
     if (
@@ -49,9 +46,6 @@ module.exports = {
       .setColor("Red")
       .setDescription(`Remembered "${description}" for ${user}.`)
       .setTitle("Remembered!")
-      .setThumbnail(
-        "https://cdn.discordapp.com/attachments/1039497705753428018/1045730663543885935/verified-blue-check-mark-symbol-logo-trademark-text-transparent-png-821650.png"
-      )
       .setTimestamp();
  
     await interaction.reply({ embeds: [embed] });

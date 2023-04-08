@@ -86,6 +86,4 @@ module.exports = {
     }
   }
 };
-
-//Is it sunny mate?
  

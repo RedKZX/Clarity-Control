@@ -40,7 +40,7 @@ module.exports = {
                 if (roleString.length + totalLength > maxFieldLength)
                     break;
 
-                totalLength += roleString.length + 1; // +1 as it's likely we want to display them with a space between each role, which counts towards the limit. Remember Henry
+                totalLength += roleString.length + 1; // +1 as it's likely we want to display them with a space between each role, which counts towards the limit. Remember Henry.
                 result.push(roleString);
             }
 

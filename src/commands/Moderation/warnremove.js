@@ -36,18 +36,12 @@ module.exports = {
         `${target} only has ${checkwarn} warn(s) \nYou cant remove more warns than this user already has`
       )
       .setTitle("Error Detected!")
-      .setThumbnail(
-        "https://cdn.discordapp.com/attachments/1039497705753428018/1046445745731031040/pngegg.png"
-      )
       .setTimestamp();
  
     const embed2 = new EmbedBuilder()
       .setColor("Red")
       .setDescription(`You can't remove 0 warns from a user`)
       .setTitle("Error Detected!")
-      .setThumbnail(
-        "https://cdn.discordapp.com/attachments/1039497705753428018/1046445745731031040/pngegg.png"
-      )
       .setTimestamp();
  
     if (amount == 0)
@@ -62,9 +56,6 @@ module.exports = {
       .setColor("Yellow")
       .setDescription(`${author} has removed ${amount} warn(s) from ${target}`)
       .setTitle("Warns Removed!")
-      .setThumbnail(
-        "https://cdn.discordapp.com/attachments/1039497705753428018/1045730663543885935/verified-blue-check-mark-symbol-logo-trademark-text-transparent-png-821650.png"
-      )
       .setTimestamp();
  
     interaction.reply({ embeds: [embed] });

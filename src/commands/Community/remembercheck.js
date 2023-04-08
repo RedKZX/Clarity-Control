@@ -1,35 +1,20 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
-const { EmbedBuilder, PermissionsBitField } = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
  
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("forget")
-    .setDescription("Makes me forget about a user.")
+    .setName("remembers-check")
+    .setDescription("See what i remember about a user.")
     .addUserOption((option) =>
       option
         .setName("user")
-        .setDescription("The user you want to forget about")
+        .setDescription("The user you want to check if i remember")
         .setRequired(true)
     ),
  
   async execute(interaction) {
-    const embed1 = new EmbedBuilder()
-      .setColor("Red")
-      .setDescription(
-        "You dont have permission to make me remember thing about someone on this server."
-      )
-      .setTitle("Error Detected!")
-      .setTimestamp();
- 
-    if (
-      !interaction.member.permissions.has(
-        PermissionsBitField.Flags.Administrator
-      )
-    )
-      return interaction.reply({ embeds: [embed1], ephemeral: true });
- 
     const author = interaction.user;
     const user = interaction.options.getUser("user");
  
@@ -44,12 +29,10 @@ module.exports = {
  
       await interaction.reply({ embeds: [embed1], ephemeral: true });
     } else {
-      await db.delete(`Remember_${user}_${interaction.guild.id}`);
- 
       const embed = new EmbedBuilder()
         .setColor("DarkPurple")
-        .setDescription(`I forgot "${remuser}" about ${user}.`)
-        .setTitle("Forgot!")
+        .setDescription(`I remember this about ${user}: \n${remuser}`)
+        .setTitle("Here's what i remember:")
         .setTimestamp();
  
       await interaction.reply({ embeds: [embed] });

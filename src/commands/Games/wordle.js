@@ -9,7 +9,7 @@ module.exports = {
 
         const Game = new Wordle({
             message: interaction,
-            isSlashGame: false,
+            isSlashGame: true,
             embed: {
                 title: `Wordle`,
                 color: `#FF0000`

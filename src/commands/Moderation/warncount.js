@@ -19,9 +19,6 @@ module.exports = {
       .setColor("Red")
       .setDescription("You dont have permission to check warns on this server.")
       .setTitle("Error Detected!")
-      .setThumbnail(
-        "https://cdn.discordapp.com/attachments/1039497705753428018/1046445745731031040/pngegg.png"
-      )
       .setTimestamp();
  
     if (
@@ -42,9 +39,6 @@ module.exports = {
       .setColor("Yellow")
       .setDescription(`${target} has ${warn} warn(s)`)
       .setTitle("Warns Checked!")
-      .setThumbnail(
-        "https://cdn.discordapp.com/attachments/1039497705753428018/1045730663543885935/verified-blue-check-mark-symbol-logo-trademark-text-transparent-png-821650.png"
-      )
       .setTimestamp();
  
     interaction.reply({ embeds: [embed] });
