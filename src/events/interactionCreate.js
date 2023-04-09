@@ -1,4 +1,5 @@
 const { Interaction } = require("discord.js");
+const fetch = require('node-fetch');
 
 module.exports = {
     name: 'interactionCreate',
@@ -10,19 +11,16 @@ module.exports = {
         if (!command) return
         
         try{
-
-
             await command.execute(interaction, client);
         } catch (error) {
             console.log(error);
-            await interaction.reply({
-                content: 'There was an error while executing this command!', 
-                ephemeral: true
-            });
+
+            async (err) => {
+                await interaction.reply({
+                    content: 'Red has broken something! Do `/issues`.', 
+                    ephemeral: true
+                }).catch(err);  
+            }
         } 
-
     },
-    
-
-
 };
