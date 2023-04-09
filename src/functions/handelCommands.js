@@ -1,9 +1,11 @@
 const { REST } = require("@discordjs/rest");
 const { Routes } = require('discord-api-types/v9');
 const fs = require('fs');
+const ascii = require("ascii-table");
+const table = new ascii().setHeading("Commands", "Status");
 
-const clientId = '//clientID here//'; 
-const guildId = '//Guild ID here//'; 
+const clientId = '1058200369555046461'; 
+const guildId = '894043142205104178'; 
 
 module.exports = (client) => {
     client.handleCommands = async (commandFolders, path) => {
@@ -14,8 +16,14 @@ module.exports = (client) => {
                 const command = require(`../commands/${folder}/${file}`);
                 client.commands.set(command.data.name, command);
                 client.commandArray.push(command.data.toJSON());
+
+                table.addRow(file, "Loaded");
+                continue;
+                
             }
         }
+
+        return console.log(table.toString(), `\n Loaded Commands`);
 
         const rest = new REST({
             version: '9'
@@ -23,7 +31,7 @@ module.exports = (client) => {
 
         (async () => {
             try {
-                console.log('Started refreshing application (/) commands.');
+                console.log("\/\/\/\/\/");
 
                 await rest.put(
                     Routes.applicationCommands(clientId), {
@@ -31,10 +39,11 @@ module.exports = (client) => {
                     },
                 );
 
-                console.log('Successfully reloaded application (/) commands.');
+                console.log("\/\/\/\/\/");
             } catch (error) {
                 console.error(error);
             }
         })();
     };
 };
+
