@@ -1,8 +1,10 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ModalBuilder, TextInputStyle, ActionRowBuilder, TextInputBuilder, PermissionsBitField, Permissions, MessageManager, Embed, Collection, MessageType } = require(`discord.js`);
+const { Client, GatewayIntentBits, EmbedBuilder, AuditLogEvent, ModalBuilder, TextInputStyle, ActionRowBuilder, TextInputBuilder, PermissionsBitField, Permissions, MessageManager, Embed, Collection, MessageType } = require(`discord.js`);
 const fs = require('fs');
-const client = new Client({ intents: [Object.keys(GatewayIntentBits), GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] }); 
+const client = new Client({ intents: [Object.keys(GatewayIntentBits), GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildMessageReactions] }); 
 const { Events } = require ('discord.js');
 const axios = require ('axios');
+const { QuickDB } = require("quick.db");
+const db = new QuickDB();
 client.commands = new Collection();
 
 require('dotenv').config();
@@ -20,6 +22,13 @@ const commandFolders = fs.readdirSync("./src/commands");
     client.login(process.env.token)
 })();
 
+client.on("messageCreate", async (message) => {
+	if (message.author.bot) return false;
+	if (message.content.includes("hawkmoon")) {
+		message.reply(`Cohen has 20k kills on that gun. Maybe hes mentally ill.`);
+	}
+});
+
 client.snipes = new Map()
 client.on('messageDelete', function(message, channel) {
     client.snipes.set(message.channel.id, {
@@ -32,96 +41,162 @@ client.on('messageDelete', function(message, channel) {
 client.on("ready", () => {
     console.log("Red has made something that works!");
 
-const activities = [
-    'Cohen uses Cronus',
-    'Red is miles above you all',
-    'Langerz is ginger',
-    'Kissing Bananas',
-    'Benji pinging announcements',
-    'ERPing with Wozzie',
-    'Im having a nightmare shit rn'
-];
-
-setInterval(() => {
-    const status = activities[Math.floor(Math.random() * activities.length)];
-    client.user.setPresence({ activities: [{ name: `${status}`}]});
-},  10000);
-
 })
 
- //Feedback (Modal)
+//Anti Crash
 
- client.on(Events.InteractionCreate, async interaction => {
+client.on("error", (err) => {
+    const ChannelID = "903783054034751578";
+    console.log("Discord API Error:", err);
+    const Embed = new EmbedBuilder()
+      .setColor("Red")
+      .setTimestamp()
+      .setFooter({ text: "Anti Crash system" })
+      .setTitle("Error Encountered");
+    const Channel = client.channels.cache.get(ChannelID);
+    if (!Channel) return;
+    Channel.send({
+      embeds: [
+        Embed.setDescription(
+          "**Discord API Error/Catch:\n\n** ```" + err + "```"
+        ),
+      ],
+    });
+  });
+  
+  process.on("unhandledRejection", (reason, p) => {
+    const ChannelID = "903783054034751578";
+    console.log("Unhandled promise rejection:", reason, p);
+    const Embed = new EmbedBuilder()
+      .setColor("Red")
+      .setTimestamp()
+      .setFooter({ text: "Anti Crash system" })
+      .setTitle("Error Encountered");
+    const Channel = client.channels.cache.get(ChannelID);
+    if (!Channel) return;
+    Channel.send({
+      embeds: [
+        Embed.setDescription(
+          "**Unhandled Rejection/Catch:\n\n** ```" + reason + "```"
+        ),
+      ],
+    });
+  });
+  
+  process.on("uncaughtException", (err, origin) => {
+    const ChannelID = "903783054034751578";
+    console.log("Uncaught Exception:", err, origin);
+    const Embed = new EmbedBuilder()
+      .setColor("Red")
+      .setTimestamp()
+      .setFooter({ text: "Anti Crash system" })
+      .setTitle("Error Encountered");
+    const Channel = client.channels.cache.get(ChannelID);
+    if (!Channel) return;
+    Channel.send({
+      embeds: [
+        Embed.setDescription(
+          "**Uncought Exception/Catch:\n\n** ```" + err + "```"
+        ),
+      ],
+    });
+  });
+  
+  process.on("uncaughtExceptionMonitor", (err, origin) => {
+    const ChannelID = "903783054034751578";
+    console.log("Uncaught Exception Monitor:", err, origin);
+    const Embed = new EmbedBuilder()
+      .setColor("Red")
+      .setTimestamp()
+      .setFooter({ text: "Anti Crash system" })
+      .setTitle("Error Encountered");
+    const Channel = client.channels.cache.get(ChannelID);
+    if (!Channel) return;
+    Channel.send({
+      embeds: [
+        Embed.setDescription(
+          "**Uncaught Exception Monitor/Catch:\n\n** ```" + err + "```"
+        ),
+      ],
+    });
+  });
+  
+  process.on("warning", (warn) => {
+    const ChannelID = "903783054034751578";
+    console.log("Warning:", warn);
+    const Embed = new EmbedBuilder()
+      .setColor("Red")
+      .setTimestamp()
+      .setFooter({ text: "Anti Crash system" })
+      .setTitle("Error Encountered");
+    const Channel = client.channels.cache.get(ChannelID);
+    if (!Channel) return;
+    Channel.send({
+      embeds: [
+        Embed.setDescription(
+          "**Warning/Catch:\n\n** ```" + warn + "```"
+        ),
+      ],
+    });
+  });
 
-    if (!interaction.isModalSubmit()) return;
-
-    if (interaction.customId === 'feedback') {
-        
-        const feedbackname = interaction.fields.getTextInputValue('name');
-        const feedbackfeedback = interaction.fields.getTextInputValue('feedback');
-        const feedbackproblems = interaction.fields.getTextInputValue('problems') || 'User did not provide any problem information.';
-    
-        axios.post('https://sheetdb.io/api/v1/wfbw6iyvafo7n', {
-                data: {
-                    username: `${feedbackname}`,
-                    feedback: `${feedbackfeedback}`,
-                    problems: `${feedbackproblems}`
-                }
-            })
-        
-        await interaction.reply({ content: 'Your **feedback** was submited! Thanks for sharing that with us :D', ephemeral: true}) 
- }
-}
+// Welcome Message //
  
- )
-
-// AFK System Code //
+client.on(Events.GuildMemberAdd, async (member) => {
  
-const afkSchema = require('./Schemas.js/afkSchema');
+    const channelID = await db.get(`welchannel_${member.guild.id}`)
+    const channelwelcome = member.guild.channels.cache.get(channelID)
  
-client.on(Events.MessageCreate, async (message) => {
+    const embedwelcome = new EmbedBuilder()
+    .setColor("Red")
+     .setTitle('Welcome!')
+     .setDescription( `> Eyes up ${member}  ${member.guild.name}
+     **Make sure to complete the tasks in the registration category failure to do so will result in having to play garden of salvation**`)
+     .setFooter({ text: `Welcome to ${member.guild.name}!`})
+     .setTimestamp()
+     .setAuthor({ name: `Red`})
  
-    if (message.author.bot) return;
+    if (channelID == null) return;
  
-    const afkcheck = await afkSchema.findOne({ Guild: message.guild.id, User: message.author.id});
-    if (afkcheck) {
-        const nick = afkcheck.Nickname;
+    const embedwelcomedm = new EmbedBuilder()
+     .setColor("Red")
+     .setTitle('Welcome!')
+     .setDescription( `> Eyes up ${member}  ${member.guild.name}
+     **Make sure to complete the tasks in the registration category failure to do so will result in having to play garden of salvation**`)
+     .setFooter({ text: `Welcome to ${member.guild.name}!`})
+     .setTimestamp()
+     .setAuthor({ name: `Red`})
  
-        await afkSchema.deleteMany({
-            Guild: message.guild.id,
-            User: message.author.id
-        })
+    if (channelID == null) return;
  
-        await message.member.setNickname(`${nick}`).catch(Err => {
-            return;
-        })
- 
-        const m1 = await message.reply({ content: `Hey, you are **back**! Unfortunately`, ephemeral: true})
-        setTimeout(() => {
-            m1.delete();
-        }, 4000)
-    } else {
- 
-        const members = message.mentions.users.first();
-        if (!members) return;
-        const afkData = await afkSchema.findOne({ Guild: message.guild.id, User: members.id })
- 
-        if (!afkData) return;
- 
-        const member = message.guild.members.cache.get(members.id);
-        const msg = afkData.Message;
- 
-        if (message.content.includes(members)) {
-            const m = await message.reply({ content: `${member.user.tag} is currently AFK, let's keep it down.. \n> **Reason**: ${msg}`, ephemeral: true});
-            setTimeout(() => {
-                m.delete();
-                message.delete();
-            }, 4000)
-        }
-    }
+    channelwelcome.send({ embeds: [embedwelcome]})
+    member.send({ embeds: [embedwelcomedm]})
 })
 
-////logging
+// Leave Message //
+ 
+client.on(Events.GuildMemberRemove, async (member) => {
+ 
+    const channelID = await db.get(`welchannel_${member.guild.id}`)
+    const channelwelcome = member.guild.channels.cache.get(channelID)
+ 
+    const embedleave = new EmbedBuilder()
+     .setColor("Red")
+     .setTitle('A Member has left')
+     .setDescription( `> ${member} has left the Server`)
+     .setFooter({ text: `Sucks to be them`})
+     .setTimestamp()
+     .setAuthor({ name: `Member Left, what a loser`})
+ 
+    if (channelID == null) return;
+ 
+    channelwelcome.send({ embeds: [embedleave]})
+})
+
+//Invite Logger
+//removed temporarly
+
+//logging
 
 const logSchema = require('./Schemas.js/log')
  
@@ -402,60 +477,84 @@ client.on(Events.VoiceStateUpdate, async member => {
     })
 })
 
-//Invite Logger
 
-const inviteSchema = require('./Schemas.js/inviteSchema');
+ //Feedback (Modal)
+
+ client.on(Events.InteractionCreate, async interaction => {
+
+    if (!interaction.isModalSubmit()) return;
+
+    if (interaction.customId === 'feedback') {
+        
+        const feedbackname = interaction.fields.getTextInputValue('name');
+        const feedbackfeedback = interaction.fields.getTextInputValue('feedback');
+        const feedbackproblems = interaction.fields.getTextInputValue('problems') || 'User did not provide any problem information.';
+    
+        axios.post('https://sheetdb.io/api/v1/wfbw6iyvafo7n', {
+                data: {
+                    username: `${feedbackname}`,
+                    feedback: `${feedbackfeedback}`,
+                    problems: `${feedbackproblems}`
+                }
+            })
+        
+        await interaction.reply({ content: 'Your **feedback** was submited! Thanks for sharing that with us :D', ephemeral: true}) 
+ }
+}
  
-const invites = new Collection();
-const wait = require("timers/promises").setTimeout;
+ )
+
+// AFK System Code //
  
-client.on('ready', async () => {
+const afkSchema = require('./Schemas.js/afkSchema');
  
-    await wait(2000);
+client.on(Events.MessageCreate, async (message) => {
  
-    client.guilds.cache.forEach(async (guild) => {
+    if (message.author.bot) return;
  
-        const clientMember = guild.members.cache.get(client.user.id);
+    const afkcheck = await afkSchema.findOne({ Guild: message.guild.id, User: message.author.id});
+    if (afkcheck) {
+        const nick = afkcheck.Nickname;
  
-        if (!clientMember.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
+        await afkSchema.deleteMany({
+            Guild: message.guild.id,
+            User: message.author.id
+        })
  
-        const firstInvites = await guild.invites.fetch().catch(err => {console.log(err)});
+        await message.member.setNickname(`${nick}`).catch(Err => {
+            return;
+        })
  
-        invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
+        const m1 = await message.reply({ content: `Hey, you are **back**! Unfortunately`, ephemeral: true})
+        setTimeout(() => {
+            m1.delete();
+        }, 4000)
+    } else {
  
-    })
+        const members = message.mentions.users.first();
+        if (!members) return;
+        const afkData = await afkSchema.findOne({ Guild: message.guild.id, User: members.id })
+ 
+        if (!afkData) return;
+ 
+        const member = message.guild.members.cache.get(members.id);
+        const msg = afkData.Message;
+ 
+        if (message.content.includes(members)) {
+            const m = await message.reply({ content: `${member.user.tag} is currently AFK, let's keep it down.. \n> **Reason**: ${msg}`, ephemeral: true});
+            setTimeout(() => {
+                m.delete();
+                message.delete();
+            }, 4000)
+        }
+    }
 })
- 
-client.on(Events.GuildMemberAdd, async member => {
- 
-    const Data = await inviteSchema.findOne({ Guild: member.guild.id});
-    if (!Data) return;
- 
-    const channelID = Data.Channel;
- 
-    const channel = await member.guild.channels.cache.get(channelID);
- 
-    const newInvites = await member.guild.invites.fetch();
- 
-    const oldInvites = invites.get(member.guild.id);
- 
-    const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
- 
-    if (!invite) return await channel.send(`${member.user.tag} joined the server using an unknown invite. This err is most likely the vanity link!`)
- 
-    const inviter = await client.users.fetch(invite.inviter.id);
- 
-    inviter 
-        ? channel.send(`${member.user.tag} joined the server using the invite ${invite.code} from ${inviter.tag}.  The invite was used ${invite.uses} times since its creation`)
-        : channel.send(`${member.user.tag} joined the server but I can't find what invite they used to do it`);
-})
-
-
 
  //Ghost ping [AGP]
 
  const ghostSchema = require('./Schemas.js/ghostpingSchema');
  const numSchema = require('./Schemas.js/ghostNum');
+const { channel } = require('diagnostics_channel');
 
  client.on(Events.MessageDelete, async message => {
 
@@ -472,7 +571,7 @@ client.on(Events.GuildMemberAdd, async member => {
         let number
         let time = 15
 
-        const data = await numSchema.findOne({ GUild: messsage.guild.id, User: message.author.id});
+        const data = await numSchema.findOne({ Guild: message.guild.id, User: message.author.id});
         if (!data) {
             await numSchema.create({
                 Guild: message.guild.id,
@@ -511,5 +610,3 @@ client.on(Events.GuildMemberAdd, async member => {
     }
  })
 //Red was here :D//
-
-//No stealey//
