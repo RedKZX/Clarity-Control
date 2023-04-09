@@ -28,10 +28,11 @@
     "dotenv": "^16.0.3",
     "ffmpeg": "^0.0.4",
     "fs": "^0.0.1-security",
+    "git": "^0.1.5",
     "libsodium-wrappers": "^0.7.11",
     "mathjs": "^11.7.0",
     "mongoose": "^6.0.12",
-    "node-fetch": "^3.3.1",
+    "node-fetch": "^2.6.9",
     "openai": "^3.2.1",
     "perf_hooks": "^0.0.1",
     "quick.db": "^9.0.8",
@@ -41,5 +42,3 @@
     "weather-js": "^2.0.0",
     "weather.js": "^0.1.0"
   }
-}
-
