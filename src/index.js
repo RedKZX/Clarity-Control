@@ -38,9 +38,15 @@ client.on('messageDelete', function(message, channel) {
     })
 })
 
-client.on("ready", () => {
-    console.log("Red has made something that works!");
 
+client.on("ready", () => {
+    console.log("Initialisation Complete :)");
+
+})
+
+const figlet = require("figlet")
+figlet.text("Mini Red", function (err, data){
+ console.log(data)
 })
 
 //Anti Crash
@@ -555,6 +561,7 @@ client.on(Events.MessageCreate, async (message) => {
  const ghostSchema = require('./Schemas.js/ghostpingSchema');
  const numSchema = require('./Schemas.js/ghostNum');
 const { channel } = require('diagnostics_channel');
+const { Mongoose } = require('mongoose');
 
  client.on(Events.MessageDelete, async message => {
 
