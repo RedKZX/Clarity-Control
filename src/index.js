@@ -53,7 +53,6 @@ figlet.text("Mini Red", function (err, data){
 
 client.on("error", (err) => {
     const ChannelID = "903783054034751578";
-    console.log("Discord API Error:", err);
     const Embed = new EmbedBuilder()
       .setColor("Red")
       .setTimestamp()
@@ -72,7 +71,6 @@ client.on("error", (err) => {
   
   process.on("unhandledRejection", (reason, p) => {
     const ChannelID = "903783054034751578";
-    console.log("Unhandled promise rejection:", reason, p);
     const Embed = new EmbedBuilder()
       .setColor("Red")
       .setTimestamp()
@@ -91,7 +89,6 @@ client.on("error", (err) => {
   
   process.on("uncaughtException", (err, origin) => {
     const ChannelID = "903783054034751578";
-    console.log("Uncaught Exception:", err, origin);
     const Embed = new EmbedBuilder()
       .setColor("Red")
       .setTimestamp()
@@ -110,7 +107,6 @@ client.on("error", (err) => {
   
   process.on("uncaughtExceptionMonitor", (err, origin) => {
     const ChannelID = "903783054034751578";
-    console.log("Uncaught Exception Monitor:", err, origin);
     const Embed = new EmbedBuilder()
       .setColor("Red")
       .setTimestamp()
@@ -129,7 +125,6 @@ client.on("error", (err) => {
   
   process.on("warning", (warn) => {
     const ChannelID = "903783054034751578";
-    console.log("Warning:", warn);
     const Embed = new EmbedBuilder()
       .setColor("Red")
       .setTimestamp()
