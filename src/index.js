@@ -71,6 +71,7 @@ client.on("error", (err) => {
   
   process.on("unhandledRejection", (reason, p) => {
     const ChannelID = "903783054034751578";
+    console.log("Unhandled promise rejection:", reason, p);
     const Embed = new EmbedBuilder()
       .setColor("Red")
       .setTimestamp()
@@ -141,7 +142,33 @@ client.on("error", (err) => {
     });
   });
 
-// Welcome Message //
+//CMD Logging
+
+client.on(Events.InteractionCreate, async interaction => {
+    if(!interaction) return;
+    if(!interaction.isChatInputCommand()) return;
+    else {
+    const channel = await client.channels.cache.get("895427104089464903");
+    const server = interaction.guild.name
+    const user = interaction.user.tag
+    const userId = interaction.user.id
+  
+    const embed = new EmbedBuilder()
+    .setColor("Red")
+    .setTitle(`CMD Log`)
+    .addFields({ name: `Server Name`, value: `${server}`})
+    .addFields({ name: `Chat Command`, value: `${interaction}`})
+    .addFields({ name: `User`, value: `${user} / ${userId}`})
+    .setTimestamp()
+    .setFooter({ text: `Red`})
+  
+    await channel.send({ embeds: [embed] });
+  
+    }
+ })
+  
+
+  // Welcome Message //
  
 client.on(Events.GuildMemberAdd, async (member) => {
  
@@ -477,6 +504,32 @@ client.on(Events.VoiceStateUpdate, async member => {
  
     })
 })
+
+ //Bungie ID (Modal)
+
+ client.on(Events.InteractionCreate, async interaction => {
+
+    if (!interaction.isModalSubmit()) return;
+
+    if (interaction.customId === 'bungie-id') {
+        
+        const DiscordName = interaction.fields.getTextInputValue('Discord Username');
+        const BungieName = interaction.fields.getTextInputValue('Bungie ID');
+        const LOA = interaction.fields.getTextInputValue('Absence from the game (optional)') || 'NaN';
+    
+        axios.post('https://sheetdb.io/api/v1/e9wjzs0p4125c', {
+                data: {
+                    DiscordName: `${DiscordName}`,
+                    BungieID: `${BungieName}`,
+                    Absence: `${LOA}`
+                }
+            })
+        
+        await interaction.reply({ content: 'Your **Data** was submited! Thanks for sharing that with us :D', ephemeral: true}) 
+ }
+}
+ 
+ )
 
 
  //Feedback (Modal)
