@@ -1,2 +1,2 @@
-# Mini-Red
-Made by @R͓̽e͓̽d͓̽#9999
+# Clarity-Control
+Discord bot made by @Henreh.
