@@ -1,28 +1,36 @@
-const { Client, GatewayIntentBits, AuditLogEvent, ModalBuilder, TextInputStyle, TextInputBuilder, PermissionsBitField, Permissions, MessageManager, Embed, Collection, MessageType } = require(`discord.js`);
+const { Client, GatewayIntentBits, AuditLogEvent,AttachmentBuilder, ModalBuilder, TextInputStyle, TextInputBuilder, PermissionsBitField, Permissions, MessageManager, Embed, Collection, MessageType } = require(`discord.js`);
 const fs = require('fs');
-const client = new Client({ intents: [Object.keys(GatewayIntentBits), GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildMessageReactions,  GatewayIntentBits.GuildVoiceStates,  GatewayIntentBits.GuildMembers] }); 
+const { Partials } = require('discord.js');
+const client = new Client({ intents: [Object.keys(GatewayIntentBits), GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildMessageReactions,  GatewayIntentBits.GuildVoiceStates,  GatewayIntentBits.GuildMembers],
+partials: [Partials.Channel, Partials.GuildMember, Partials.GuildScheduledEvent, Partials.Message, Partials.Reaction, Partials.ThreadMember, Partials.User],
+ }); 
 const { Events, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require ('discord.js');
 const axios = require ('axios');
 const { ChannelType } = require('discord.js');
 const { createTranscript } = require('discord-html-transcripts');
+var colors = require('@colors/colors');
+const { DisTube } = require("distube");
+const { SpotifyPlugin } = require('@distube/spotify');
+const { SoundCloudPlugin } = require('@distube/soundcloud');
+const { YtDlpPlugin } = require('@distube/yt-dlp');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-client.commands = new Collection();
+const { CaptchaGenerator } = require('captcha-canvas');
 
 require('dotenv').config();
 
-const functions = fs.readdirSync("./src/functions").filter(file => file.endsWith(".js"));
-const eventFiles = fs.readdirSync("./src/events").filter(file => file.endsWith(".js"));
-const commandFolders = fs.readdirSync("./src/commands");
+const {loadEvents} = require('./src/Handlers/eventHandler');
+const {loadCommands} = require('./src/Handlers/commandHandler');
 
-(async () => {
-    for (file of functions) {
-        require(`./functions/${file}`)(client);
-    }
-    client.handleEvents(eventFiles, "./src/events");
-    client.handleCommands(commandFolders, "./src/commands");
-    client.login(process.env.token)
-})();
+client.commands = new Collection();
+client.errors = new Collection();
+
+client.login(process.env.token).then(() => {
+    loadEvents(client);
+    loadCommands(client);
+});
+
+//Chat responses
 
 client.on("messageCreate", async (message) => {
 	if (message.author.bot) return false;
@@ -30,6 +38,18 @@ client.on("messageCreate", async (message) => {
 		message.reply(`Cohen has 20k kills on that gun. Maybe hes mentally ill.`);
 	}
 });
+
+client.on("messageCreate", async (message) => {
+	if (message.author.bot) return false;
+	if (message.content.includes("!credits")) {
+		message.reply(`**Clarity Control**
+        Bot made by Henreh
+        Profile Picture by benji1828
+        Special thanks to "Clarity" Discord server for being guinea pigs!`);
+	}
+});
+
+//Snipe Function
 
 client.snipes = new Map()
 client.on('messageDelete', function(message, channel) {
@@ -40,21 +60,32 @@ client.on('messageDelete', function(message, channel) {
     })
 })
 
+//Ready
 
 client.on("ready", () => {
-    console.log("Initialisation Complete :)");
+    console.log(" [HENREH] Pretty Logs eh?".red);
 
 })
 
 const figlet = require("figlet")
-figlet.text("Mini Red", function (err, data){
+figlet.text("Clarity", function (err, data){
  console.log(data)
 })
 
+//Distube Client
+
+client.distube = new DisTube(client, {
+    emitNewSongOnly: true,
+    leaveOnFinish: false,
+    emitAddSongWhenCreatingQueue: false,
+    plugins: [new SpotifyPlugin()]
+  });
+
+
 // JOIN TO CREATE VOICE CHANNEL CODE //
  
-const joinschema = require('./Schemas.js/jtc1schema');
-const joinchannelschema = require('./Schemas.js/jtc2Schema');
+const joinschema = require('./src/Schemas.js/jtc1schema');
+const joinchannelschema = require('./src/Schemas.js/jtc2Schema');
  
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
  
@@ -83,7 +114,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
                 try {
  
                     const joinfail = new EmbedBuilder()
-                    .setColor('Red')
+                    .setColor('Blue')
                     .setTimestamp()
                     .setAuthor({ name: `🔊 Join to Create System`})
                     .setFooter({ text: `🔊 Issue Faced`})
@@ -130,7 +161,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
                     try {
  
                         const joinfail = new EmbedBuilder()
-                        .setColor('Red')
+                        .setColor('Blue')
                         .setTimestamp()
                         .setAuthor({ name: `🔊 Join to Create System`})
                         .setFooter({ text: `🔊 Issue Faced`})
@@ -150,7 +181,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
                 try {
  
                     const joinsuccess = new EmbedBuilder()
-                    .setColor('Red')
+                    .setColor('Blue')
                     .setTimestamp()
                     .setAuthor({ name: `🔊 Join to Create System`})
                     .setFooter({ text: `🔊 Channel Created`})
@@ -196,7 +227,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
         try {
  
             const deletechannel = new EmbedBuilder()
-            .setColor('Red')
+            .setColor('Blue')
             .setTimestamp()
             .setAuthor({ name: `🔊 Join to Create System`})
             .setFooter({ text: `🔊 Channel Deleted`})
@@ -213,8 +244,8 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 
 // POLL SYSTEM //
  
-const pollschema = require('./Schemas.js/votes');
-const pollsetup = require('./Schemas.js/votesetup');
+const pollschema = require('./src/Schemas.js/votes');
+const pollsetup = require('./src/Schemas.js/votesetup');
  
 client.on(Events.MessageCreate, async message => {
  
@@ -227,7 +258,7 @@ client.on(Events.MessageCreate, async message => {
     if (message.author.bot) return;
  
     const embed = new EmbedBuilder()
-    .setColor("Red")
+    .setColor("Blue")
     .setAuthor({ name: `🤚 Poll System`})
     .setFooter({ text: `🤚 Poll Started`})
     .setTimestamp()
@@ -393,7 +424,7 @@ client.on(Events.InteractionCreate, async i => {
  
             const embed = new EmbedBuilder()
             .setTitle('> Poll Votes')
-            .setColor("Red")
+            .setColor("Blue")
             .setAuthor({ name: `🤚 Poll System`})
             .setFooter({ text: `🤚 Poll Members`})
             .setTimestamp()
@@ -404,9 +435,150 @@ client.on(Events.InteractionCreate, async i => {
         }
 })
 
+//Captcha Verify
+
+const capschema = require('./src/Schemas.js/verify');
+const verifyusers = require('./src/Schemas.js/verifyusers');
+
+ 
+client.on(Events.InteractionCreate, async interaction => {
+ 
+    if (interaction.guild === null) return;
+ 
+    const verifydata = await capschema.findOne({ Guild: interaction.guild.id });
+    const verifyusersdata = await verifyusers.findOne({ Guild: interaction.guild.id, User: interaction.user.id });
+ 
+    if (interaction.customId === 'verify') {
+ 
+        if (!verifydata) return await interaction.reply({ content: `The **verification system** has been disabled in this server!`, ephemeral: true});
+ 
+        if (verifydata.Verified.includes(interaction.user.id)) return await interaction.reply({ content: 'You have **already** been verified!', ephemeral: true})
+        else {
+ 
+            let letter = ['0','1','2','3','4','5','6','7','8','9','a','A','b','B','c','C','d','D','e','E','f','F','g','G','h','H','i','I','j','J','f','F','l','L','m','M','n','N','o','O','p','P','q','Q','r','R','s','S','t','T','u','U','v','V','w','W','x','X','y','Y','z','Z',]
+            let result = Math.floor(Math.random() * letter.length);
+            let result2 = Math.floor(Math.random() * letter.length);
+            let result3 = Math.floor(Math.random() * letter.length);
+            let result4 = Math.floor(Math.random() * letter.length);
+            let result5 = Math.floor(Math.random() * letter.length);
+ 
+            const cap = letter[result] + letter[result2] + letter[result3] + letter[result4] + letter[result5];
+            console.log(cap)
+ 
+            const captcha = new CaptchaGenerator()
+            .setDimension(150, 450)
+            .setCaptcha({ text: `${cap}`, size: 60, color: "red"})
+            .setDecoy({ opacity: 0.5 })
+            .setTrace({ color: "red" })
+ 
+            const buffer = captcha.generateSync();
+ 
+            const verifyattachment = new AttachmentBuilder(buffer, { name: `captcha.png`});
+ 
+            const verifyembed = new EmbedBuilder()
+            .setColor('Blue')
+            .setAuthor({ name: `⚙️ Claritys Toolbox`})
+            .setFooter({ text: `✅ Verification Captcha`})
+            .setTimestamp()
+            .setImage('attachment://captcha.png')
+            .setThumbnail('https://cdn.discordapp.com/attachments/834529667968008252/1123792486054252574/Clarity_Logo_BK_Final.png')
+            .setTitle('> Verification Step: Captcha')
+            .addFields({ name: `• Verify`, value: '> Please use the button bellow to \n> submit your captcha!'})
+ 
+            const verifybutton = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                .setLabel('✅ Enter Captcha')
+                .setStyle(ButtonStyle.Success)
+                .setCustomId('captchaenter')
+            )
+ 
+            const vermodal = new ModalBuilder()
+            .setTitle('Verification')
+            .setCustomId('vermodal')
+ 
+            const answer = new TextInputBuilder()
+            .setCustomId('answer')
+            .setRequired(true)
+            .setLabel('• Please sumbit your Captcha code')
+            .setPlaceholder('Your captcha code')
+            .setStyle(TextInputStyle.Short)
+ 
+            const vermodalrow = new ActionRowBuilder().addComponents(answer);
+            vermodal.addComponents(vermodalrow);
+ 
+            const vermsg = await interaction.reply({ embeds: [verifyembed], components: [verifybutton], ephemeral: true, files: [verifyattachment] });
+ 
+            const vercollector = vermsg.createMessageComponentCollector();
+ 
+            vercollector.on('collect', async i => {
+ 
+                if (i.customId === 'captchaenter') {
+                    i.showModal(vermodal);
+                }
+ 
+            })
+ 
+            if (verifyusersdata) {
+ 
+                await verifyusers.deleteMany({
+                    Guild: interaction.guild.id,
+                    User: interaction.user.id
+                })
+ 
+                await verifyusers.create ({
+                    Guild: interaction.guild.id,
+                    User: interaction.user.id,
+                    Key: cap
+                })
+ 
+            } else {
+ 
+                await verifyusers.create ({
+                    Guild: interaction.guild.id,
+                    User: interaction.user.id,
+                    Key: cap
+                })
+ 
+            }
+        } 
+    }
+})
+ 
+client.on(Events.InteractionCreate, async interaction => {
+ 
+    if (!interaction.isModalSubmit()) return;
+ 
+    if (interaction.customId === 'vermodal') {
+ 
+        const userverdata = await verifyusers.findOne({ Guild: interaction.guild.id, User: interaction.user.id });
+        const verificationdata = await capschema.findOne({ Guild: interaction.guild.id });
+ 
+        if (verificationdata.Verified.includes(interaction.user.id)) return await interaction.reply({ content: `You have **already** verified within this server!`, ephemeral: true});
+ 
+        const modalanswer = interaction.fields.getTextInputValue('answer');
+        if (modalanswer === userverdata.Key) {
+ 
+            const verrole = await interaction.guild.roles.cache.get(verificationdata.Role);
+ 
+            try {
+                await interaction.member.roles.add(verrole);
+            } catch (err) {
+                return await interaction.reply({ content: `There was an **issue** giving you the **<@&${verificationdata.Role}>** role, try again later!`, ephemeral: true})
+            }
+ 
+            await interaction.reply({ content: 'You have been **verified!**', ephemeral: true});
+            await capschema.updateOne({ Guild: interaction.guild.id }, { $push: { Verified: interaction.user.id }});
+ 
+        } else {
+            await interaction.reply({ content: `**Oops!** It looks like you **didn't** enter the valid **captcha code**!`, ephemeral: true})
+        }
+    }
+})
+
 /// TICKET SYSTEM //
  
-const ticketSchema = require("./Schemas.js/ticketSchema");
+const ticketSchema = require("./src/Schemas.js/ticketSchema");
 client.on(Events.InteractionCreate, async (interaction) => {
   const { customId, guild, channel } = interaction;
   if (interaction.isButton()) {
@@ -440,7 +612,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
         ],
       }).then(async (channel) => {
         const openembed = new EmbedBuilder()
-          .setColor("Red")
+          .setColor("Blue")
           .setTitle("Ticket Opened")
           .setDescription(`Welcome to your ticket ${interaction.user.username}\n React with 🔒 to close the ticket`)
           .setThumbnail(interaction.guild.iconURL())
@@ -467,7 +639,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (customId === "closeticket") {
       const closingEmbed = new EmbedBuilder()
       .setDescription('🔒 are you sure you want to close this ticket?')
-      .setColor('Red')
+      .setColor('Blue')
  
       const buttons = new ActionRowBuilder()
       .addComponents(
@@ -500,14 +672,14 @@ client.on(Events.InteractionCreate, async (interaction) => {
       .addFields(
         {name: `Closed by`, value: `${interaction.user.tag}`}
       )
-      .setColor('Red')
+      .setColor('Blue')
       .setTimestamp()
       .setThumbnail(interaction.guild.iconURL())
       .setFooter({ text: `${interaction.guild.name}'s Tickets` })
  
       const processEmbed = new EmbedBuilder()
       .setDescription(` Closing ticket in 10 seconds...`)
-      .setColor('Red')
+      .setColor('Blue')
  
       await interaction.reply({ embeds: [processEmbed] })
  
@@ -524,19 +696,62 @@ client.on(Events.InteractionCreate, async (interaction) => {
      if (customId === "nodont") {
         const noEmbed = new EmbedBuilder()
         .setDescription('🔒 Ticket close cancelled')
-        .setColor('Red')
+        .setColor('Blue')
   
         await interaction.reply({ embeds: [noEmbed], ephemeral: true })
      }
   }
 })
 
+//Reaction roles
+const reactions = require('./src/Schemas.js/reactionrs');
+client.on(Events.MessageReactionAdd, async(reaction, user) => {
+
+    if (!reaction.message.guild.id) return;
+    if (user.bot) return;
+
+    let cID = `<:${reaction.emoji.name}:${reaction.emoji.id}>`;
+    if (!reaction.emoji.id) cID = reaction.emoji.name;
+
+    const data = await reactions.findOne({ Guild: reaction.message.guild.id, Message: reaction.message.id, Emoji: cID });
+    if (!data) return;
+    
+    const guild = await client.guilds.cache.get(reaction.message.guild.id);
+    const member = await guild.members.cache.get(user.id);
+
+    try {
+        await member.roles.add(data.Role);
+    } catch(err) {
+        console.log(err)
+    }
+})
+
+client.on(Events.MessageReactionRemove, async(reaction, user) => {
+
+    if (!reaction.message.guild.id) return;
+    if (user.bot) return;
+
+    let cID = `<:${reaction.emoji.name}:${reaction.emoji.id}>`;
+    if (!reaction.emoji.id) cID = reaction.emoji.name;
+
+    const data = await reactions.findOne({ Guild: reaction.message.guild.id, Message: reaction.message.id, Emoji: cID });
+    if (!data) return;
+    
+    const guild = await client.guilds.cache.get(reaction.message.guild.id);
+    const member = await guild.members.cache.get(user.id);
+
+    try {
+        await member.roles.remove(data.Role);
+    } catch(err) {
+        console.log(err)
+    }
+})
 //Anti Crash
 
 client.on("error", (err) => {
-    const ChannelID = "903783054034751578";
+    const ChannelID = "1112156467974373396";
     const Embed = new EmbedBuilder()
-      .setColor("Red")
+      .setColor("Blue")
       .setTimestamp()
       .setFooter({ text: "Anti Crash system" })
       .setTitle("Error Encountered");
@@ -552,10 +767,10 @@ client.on("error", (err) => {
   });
   
   process.on("unhandledRejection", (reason, p) => {
-    const ChannelID = "903783054034751578";
+    const ChannelID = "1112156467974373396";
     console.log("Unhandled promise rejection:", reason, p);
     const Embed = new EmbedBuilder()
-      .setColor("Red")
+      .setColor("Blue")
       .setTimestamp()
       .setFooter({ text: "Anti Crash system" })
       .setTitle("Error Encountered");
@@ -571,9 +786,9 @@ client.on("error", (err) => {
   });
   
   process.on("uncaughtException", (err, origin) => {
-    const ChannelID = "903783054034751578";
+    const ChannelID = "1112156467974373396";
     const Embed = new EmbedBuilder()
-      .setColor("Red")
+      .setColor("Blue")
       .setTimestamp()
       .setFooter({ text: "Anti Crash system" })
       .setTitle("Error Encountered");
@@ -589,9 +804,9 @@ client.on("error", (err) => {
   });
   
   process.on("uncaughtExceptionMonitor", (err, origin) => {
-    const ChannelID = "903783054034751578";
+    const ChannelID = "1112156467974373396";
     const Embed = new EmbedBuilder()
-      .setColor("Red")
+      .setColor("Blue")
       .setTimestamp()
       .setFooter({ text: "Anti Crash system" })
       .setTitle("Error Encountered");
@@ -607,9 +822,9 @@ client.on("error", (err) => {
   });
   
   process.on("warning", (warn) => {
-    const ChannelID = "903783054034751578";
+    const ChannelID = "1112156467974373396";
     const Embed = new EmbedBuilder()
-      .setColor("Red")
+      .setColor("Blue")
       .setTimestamp()
       .setFooter({ text: "Anti Crash system" })
       .setTitle("Error Encountered");
@@ -630,13 +845,13 @@ client.on(Events.InteractionCreate, async interaction => {
     if(!interaction) return;
     if(!interaction.isChatInputCommand()) return;
     else {
-    const channel = await client.channels.cache.get("895427104089464903");
+    const channel = await client.channels.cache.get("1123634169524785193");
     const server = interaction.guild.name
     const user = interaction.user.tag
     const userId = interaction.user.id
   
     const embed = new EmbedBuilder()
-    .setColor("Red")
+    .setColor("Blue")
     .setTitle(`CMD Log`)
     .addFields({ name: `Server Name`, value: `${server}`})
     .addFields({ name: `Chat Command`, value: `${interaction}`})
@@ -650,65 +865,85 @@ client.on(Events.InteractionCreate, async interaction => {
  })
   
 
-  // Welcome Message //
- 
-client.on(Events.GuildMemberAdd, async (member) => {
- 
-    const channelID = await db.get(`welchannel_${member.guild.id}`)
-    const channelwelcome = member.guild.channels.cache.get(channelID)
- 
-    const embedwelcome = new EmbedBuilder()
-    .setColor("Red")
-     .setTitle('Welcome!')
-     .setDescription( `> Eyes up ${member}  ${member.guild.name}
-     **Make sure to complete the tasks in the registration category failure to do so will result in having to play garden of salvation**`)
-     .setFooter({ text: `Welcome to ${member.guild.name}!`})
-     .setTimestamp()
-     .setAuthor({ name: `Red`})
- 
-    if (channelID == null) return;
- 
-    const embedwelcomedm = new EmbedBuilder()
-     .setColor("Red")
-     .setTitle('Welcome!')
-     .setDescription( `> Eyes up ${member}  ${member.guild.name}
-     **Make sure to complete the tasks in the registration category failure to do so will result in having to play garden of salvation**`)
-     .setFooter({ text: `Welcome to ${member.guild.name}!`})
-     .setTimestamp()
-     .setAuthor({ name: `Red`})
- 
-    if (channelID == null) return;
- 
-    channelwelcome.send({ embeds: [embedwelcome]})
-    member.send({ embeds: [embedwelcomedm]})
-})
-
 // Leave Message //
- 
-client.on(Events.GuildMemberRemove, async (member) => {
- 
-    const channelID = await db.get(`welchannel_${member.guild.id}`)
-    const channelwelcome = member.guild.channels.cache.get(channelID)
- 
-    const embedleave = new EmbedBuilder()
-     .setColor("Red")
-     .setTitle('A Member has left')
-     .setDescription( `> ${member} has left the Server`)
-     .setFooter({ text: `Sucks to be them`})
-     .setTimestamp()
-     .setAuthor({ name: `Member Left, what a loser`})
- 
-    if (channelID == null) return;
- 
-    channelwelcome.send({ embeds: [embedleave]})
-})
+const welcomeschema = require('./src/Schemas.js/welcomeschema'); 
+const roleschema = require('./src/Schemas.js/autorole');
 
+client.on(Events.GuildMemberRemove, async (member, err) => {
+ 
+    const leavedata = await welcomeschema.findOne({ Guild: member.guild.id });
+ 
+    if (!leavedata) return;
+    else {
+ 
+        const channelID = leavedata.Channel;
+        const channelwelcome = member.guild.channels.cache.get(channelID);
+ 
+        const embedleave = new EmbedBuilder()
+        .setColor("Blue")
+        .setTitle(`${member.user.username} has left`)
+        .setDescription( `> ${member} has left the Server`)
+        .setFooter({ text: `${member} has gone to find a girlfriend!`})
+        .setTimestamp()
+        .setAuthor({ name: `👋 Member Left`})
+        .setThumbnail('https://cdn.discordapp.com/attachments/834529667968008252/1123792486054252574/Clarity_Logo_BK_Final.png')
+ 
+        const welmsg = await channelwelcome.send({ embeds: [embedleave]}).catch(err);
+        welmsg.react('👋');
+    }
+})
+ 
+// Welcome Message //
+ 
+client.on(Events.GuildMemberAdd, async (member, err) => {
+ 
+    const welcomedata = await welcomeschema.findOne({ Guild: member.guild.id });
+ 
+    if (!welcomedata) return;
+    else {
+ 
+        const channelID = welcomedata.Channel;
+        const channelwelcome = member.guild.channels.cache.get(channelID)
+        const roledata = await roleschema.findOne({ Guild: member.guild.id });
+ 
+        if (roledata) {
+            const giverole = await member.guild.roles.cache.get(roledata.Role)
+ 
+            member.roles.add(giverole).catch(err => {
+                console.log('Error received trying to give an auto role!');
+            })
+        }
+ 
+        const embedwelcome = new EmbedBuilder()
+         .setColor("Blue")
+         .setTitle(`${member.user.username} has arrived\nto the Server!`)
+         .setDescription( `> Welcome ${member} to the Sevrer!`)
+         .setFooter({ text: `Make sure to complete the tasks in the "Registration" Category to see the rest of the server!`})
+         .setTimestamp()
+         .setAuthor({ name: `👋 Welcome to ${member.guild.name}`})
+         .setThumbnail('https://cdn.discordapp.com/attachments/834529667968008252/1123792486054252574/Clarity_Logo_BK_Final.png')
+ 
+        const embedwelcomedm = new EmbedBuilder()
+         .setColor("Blue")
+         .setTitle('Welcome Message')
+         .setDescription( `> Welcome to ${member.guild.name}!`)
+         .setFooter({ text: `Make sure to complete the tasks in the "Registration" Category to see the rest of the server!`})
+         .setTimestamp()
+         .setAuthor({ name: `👋 Welcome to the Server!`})
+         .setThumbnail('https://cdn.discordapp.com/attachments/834529667968008252/1123792486054252574/Clarity_Logo_BK_Final.png')
+ 
+        const levmsg = await channelwelcome.send({ embeds: [embedwelcome]});
+        levmsg.react('👋');
+        member.send({ embeds: [embedwelcomedm]}).catch(err => console.log(`Welcome DM error: ${err}`))
+ 
+    } 
+})
 //Invite Logger
 //removed temporarly
 
 //logging
 
-const logSchema = require('./Schemas.js/log')
+const logSchema = require('./src/Schemas.js/log')
  
 client.on(Events.ChannelCreate, async channel => {
  
@@ -738,14 +973,14 @@ client.on(Events.ChannelCreate, async channel => {
                 const mChannel = await channel.guild.channels.cache.get(channelID);
  
                 const embed = new EmbedBuilder()
-                .setColor("Red")
+                .setColor("Blue")
                 .setTitle("Channel Created")
                 .addFields({ name: "Channel Name", value: `${name} (<#${id}>)`, inline: false})
                 .addFields({ name: "Channel Type", value: `${type}`, inline: false})
                 .addFields({ name: "Channel ID", value: `${id}`, inline: false})
                 .addFields({ name: "Created By", value: `${executor.tag}`, inline: false})
                 .setTimestamp()
-                .setFooter({ text: "Mod Logging System"})
+                .setFooter({ text: "Henrehs Mod Logging System"})
  
                 mChannel.send({ embeds: [embed] })
             }
@@ -783,14 +1018,14 @@ client.on(Events.ChannelDelete, async channel => {
                 const mChannel = await channel.guild.channels.cache.get(channelID);
  
                 const embed = new EmbedBuilder()
-                .setColor("Red")
+                .setColor("Blue")
                 .setTitle("Channel Deleted")
                 .addFields({ name: "Channel Name", value: `${name}`, inline: false})
                 .addFields({ name: "Channel Type", value: `${type}`, inline: false})
                 .addFields({ name: "Channel ID", value: `${id}`, inline: false})
                 .addFields({ name: "Deleted By", value: `${executor.tag}`, inline: false})
                 .setTimestamp()
-                .setFooter({ text: "Mod Logging System"})
+                .setFooter({ text: "Henrehs Mod Logging System"})
  
                 mChannel.send({ embeds: [embed] })
             }
@@ -820,13 +1055,13 @@ client.on(Events.GuildBanAdd, async member => {
                 const mChannel = await member.guild.channels.cache.get(channelID);
  
                 const embed = new EmbedBuilder()
-                .setColor("Red")
+                .setColor("Blue")
                 .setTitle("Member Banned")
                 .addFields({ name: "Member Name", value: `${name} (<@${id}>)`, inline: false})
                 .addFields({ name: "Member ID", value: `${id}`, inline: false})
                 .addFields({ name: "Banned By", value: `${executor.tag}`, inline: false})
                 .setTimestamp()
-                .setFooter({ text: "Mod Logging System"})
+                .setFooter({ text: "Henrehs Mod Logging System"})
  
                 mChannel.send({ embeds: [embed] })
             }
@@ -856,13 +1091,13 @@ client.on(Events.GuildBanRemove, async member => {
                 const mChannel = await member.guild.channels.cache.get(channelID);
  
                 const embed = new EmbedBuilder()
-                .setColor("Red")
+                .setColor("Blue")
                 .setTitle("Member Unbanned")
                 .addFields({ name: "Member Name", value: `${name} (<@${id}>)`, inline: false})
                 .addFields({ name: "Member ID", value: `${id}`, inline: false})
                 .addFields({ name: "Unbanned By", value: `${executor.tag}`, inline: false})
                 .setTimestamp()
-                .setFooter({ text: "Mod Logging System"})
+                .setFooter({ text: "Henrehs Mod Logging System"})
  
                 mChannel.send({ embeds: [embed] })
  
@@ -888,13 +1123,13 @@ client.on(Events.MessageDelete, async message => {
                 const mChannel = await message.guild.channels.cache.get(channelID);
  
                 const embed = new EmbedBuilder()
-                .setColor("Red")
+                .setColor("Blue")
                 .setTitle("Message Deleted")
                 .addFields({ name: "Message Content", value: `${mes}`, inline: false})
                 .addFields({ name: "Message Channel", value: `${message.channel}`, inline: false})
                 .addFields({ name: "Message Author", value: `${message.author.tag}`, inline: false})
                 .setTimestamp()
-                .setFooter({ text: "Mod Logging System"})
+                .setFooter({ text: "Henrehs Mod Logging System"})
  
                 mChannel.send({ embeds: [embed] })
  
@@ -919,13 +1154,13 @@ client.on(Events.MessageUpdate, async (message, newMessage) => {
                 const mChannel = await message.guild.channels.cache.get(channelID);
  
             const embed = new EmbedBuilder()
-            .setColor("Red")
+            .setColor("Blue")
             .setTitle("Message Edited")
             .addFields({ name: "Old Message", value: `${mes}`, inline: false})
             .addFields({ name: "New Message", value: `${newMessage}`, inline: false})
             .addFields({ name: "Message Author", value: `${executor}`, inline: false})
             .setTimestamp()
-            .setFooter({ text: "Mod Logging System"})
+            .setFooter({ text: "Henrehs Mod Logging System"})
  
             mChannel.send({ embeds: [embed] })
  
@@ -957,12 +1192,12 @@ client.on(Events.VoiceStateUpdate, async member => {
                 const mChannel = await member.guild.channels.cache.get(channelID);
  
                 const embed = new EmbedBuilder()
-                .setColor("Red")
+                .setColor("Blue")
                 .setTitle("Member Joined VC")
                 .addFields({ name: "Member", value: `${mem}`, inline: false})
                 .addFields({ name: "Member Tag & ID", value: `${memberTag}, ${memberID}`, inline: false})
                 .setTimestamp()
-                .setFooter({ text: "Mod Logging System"})
+                .setFooter({ text: "Henrehs Mod Logging System"})
  
                 mChannel.send({ embeds: [embed] })
  
@@ -971,12 +1206,12 @@ client.on(Events.VoiceStateUpdate, async member => {
                 const mChannel = await member.guild.channels.cache.get(channelID);
  
                 const embed = new EmbedBuilder()
-                .setColor("Red")
+                .setColor("Blue")
                 .setTitle("Member Left VC")
                 .addFields({ name: "Member", value: `${mem}`, inline: false})
                 .addFields({ name: "Member Tag & ID", value: `${memberTag}, ${memberID}`, inline: false})
                 .setTimestamp()
-                .setFooter({ text: "Mod Logging System"})
+                .setFooter({ text: "Henrehs Mod Logging System"})
  
                 mChannel.send({ embeds: [embed] })
             }
@@ -1042,7 +1277,7 @@ client.on(Events.VoiceStateUpdate, async member => {
 
 // AFK System Code //
  
-const afkSchema = require('./Schemas.js/afkSchema');
+const afkSchema = require('./src/Schemas.js/afkSchema');
  
 client.on(Events.MessageCreate, async (message) => {
  
@@ -1088,8 +1323,8 @@ client.on(Events.MessageCreate, async (message) => {
 
  //Ghost ping [AGP]
 
- const ghostSchema = require('./Schemas.js/ghostpingSchema');
- const numSchema = require('./Schemas.js/ghostNum');
+ const ghostSchema = require('./src/Schemas.js/ghostpingSchema');
+ const numSchema = require('./src/Schemas.js/ghostNum');
 const { channel } = require('diagnostics_channel');
 const { Mongoose } = require('mongoose');
 
@@ -1146,4 +1381,6 @@ const { Mongoose } = require('mongoose');
         }
     }
  })
-//Red was here :D//
+
+ module.exports = client;
+//Henreh was here :D//
